@@ -1,0 +1,31 @@
+
+/* Header.css */
+.header {
+    background-color: #fff;
+    padding: 10px;
+    text-align: center;
+    border: 2px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+}
+
+.sub-text {
+    font-size: 14px;
+    color: #666;
+    margin-left: auto;
+    /* Add any other styles as needed */
+}
+
+.header h1 {
+    color: #333; /* You can change the color as needed */
+    margin: 0; /* Remove default margin */
+    flex-grow: 1; /* Allow the h1 to grow and take up remaining space */
+    text-align: center; /* Center the text horizontally */
+}
+
+.content {
+    min-height: calc(100vh - 80px); /* Adjust the value based on the height of your header */
+    /* Add any other styles you need */
+}
