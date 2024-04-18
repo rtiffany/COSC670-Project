@@ -28,4 +28,4 @@
 
 I think those are all the primary changes, the rest is just updating some source code in the frontend to include the code allowing interaction with the Metamask extension and signing transactions. 
 
-I didn't do much with the UI, the theme and the CSS is the same, only added some padding on the configure poll page to the buttons to make it easier for me to see while developing the page.
+I didn't do much with the UI, the theme and the CSS is the same, only added some padding on the configure poll page to the buttons to make it easier for me to see while developing the page. 
