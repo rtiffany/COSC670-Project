@@ -1,12 +1,9 @@
-import * as React from 'react';
-// import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
-import '../Login/Login.css';
-import '../Header/Header.css';
-import { Header } from '../Header/Header.jsx';
+import './Login.css';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 
-const Login = () => {
+export default function Login() {
     const navigate = useNavigate();
 
     const handleSubmit = (e) => {
@@ -17,7 +14,7 @@ const Login = () => {
 
 
     return (
-        <div><Header />
+        <div>
             <div className='d-flex vh-100 bg-dark-grey justify-content-center align-items-center'>
 
                 <div className='login-form col-md-5' style={{ margin: '0 100px' }}>
@@ -30,16 +27,20 @@ const Login = () => {
                                 placeholder='Enter Your Wallet Address'
                                 className='form-control'
                                 style={{ textAlign: 'center' }}
-
+                                size={45}
                             />
                         </div>
+                        <Link to="vote">
                         <button type="submit" className='btn btn-success w-100'>Submit</button>
+                        </Link>
+                        <Link to="/">
+                            <button type="submit">Home</button>
+                        </Link>
                     </form>
                 </div>
             </div>
+
         </div>
 
     );
 }
-
-export { Login };

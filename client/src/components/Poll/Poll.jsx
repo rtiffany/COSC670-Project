@@ -1,19 +1,49 @@
 import * as React from 'react';
-// import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import '../Login/Login.css';
-import '../Header/Header.css';
-import '../Poll/Poll.css'
-import { Header } from '../Header/Header.jsx';
+import './Poll.css'
+import LinkButton from '../LinkButton/LinkButton';
+import InputWithLabel from '../InputWithLabel/InputWithLabel';
+import { ethers } from 'ethers';
+import abi from '../../artifacts/Poll.json'
+import contractAddress from '../../artifacts/contractAddress.json';
 
+export default function Poll() {
 
+    const [options, setOptions] = React.useState(['Candidate 1', 'Candidate 2']);
+    const [provider, setProvider] = React.useState(null);
+    const [pollName, setPollName] = React.useState("");
+    const pollAddress = contractAddress.Poll;
+    const contractABI = abi.abi;
 
-const Poll = () => {
+    const createPoll = async (event) => {
+        event.preventDefault();
+        try {
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+            const contract = new ethers.Contract(pollAddress, contractABI, signer);
+            await contract.setName("TEST POLL");
+            setPollName(await contract.getName());
+            window.alert(`${pollName} successfully created!`);
+            // window.location.replace('configurePoll/pollDash');
+        } catch (error) {
+            window.alert(error);
+        }
+    }
 
-    const [options, setOptions] = React.useState(['Option 1', 'Option 2']);
+    React.useEffect(() => {
+        if (typeof window !== "undefined") {
+          if (window.ethereum) {
+            setProvider(new ethers.BrowserProvider(window.ethereum));
+            // getCurrentAd()
+          } else {
+            console.error("Please install MetaMask!");
+          }
+        }
+      }, []);
 
     const addOption = (e) => {
         e.preventDefault(); // Prevent default form submission behavior
-        const newOptions = [...options, `Option ${options.length + 1}`];
+        const newOptions = [...options, `Candidate ${options.length + 1}`];
         setOptions(newOptions);
     };
 
@@ -27,7 +57,6 @@ const Poll = () => {
 
     return (
         <div>
-            <Header />
             <div className='d-flex vh-100 bg-dark-grey justify-content-center align-items-center content'>
                 <div className='login-form col-md-5' style={{ margin: '20px 100px', display: 'flex', flexDirection: 'column', paddingTop: '20px' }}>
                     <form style={{ flex: 1 }}>
@@ -42,6 +71,7 @@ const Poll = () => {
                                         style={{ textAlign: 'center' }}
                                     />
                                 </div>
+                                <br />
                                 <div className='mb-4' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <label style={{ margin: '0', marginRight: '10px' }}>Poll Desc.</label>
                                     <input
@@ -51,6 +81,8 @@ const Poll = () => {
                                         style={{ textAlign: 'center' }}
                                     />
                                 </div>
+                                <br />
+                                {/* Adding an option will rerender this code below with the incremented option */}
                                 {options.map((option, index) => (
                                     <div key={index} className='mb-4' style={{ display: 'flex', alignItems: 'center' }}>
                                         <label style={{ margin: '0', marginRight: '10px' }}>{option}</label>
@@ -60,12 +92,17 @@ const Poll = () => {
                                             className='form-control'
                                             style={{ textAlign: 'center' }}
                                         />
+                                        <InputWithLabel><strong>Candidate Address: </strong></InputWithLabel>
                                     </div>
                                 ))}
+                                <br />
                                 <div className='mb-4' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <button className='btn btn-primary m-4' onClick={addOption}>Add more options</button>
-                                    <button className='btn btn-danger' onClick={deleteOption}>Delete last option</button>
+                                    <button className='btn btn-primary m-4' onClick={addOption}
+                                        style={{ margin: '1em' }}>Add more options</button>
+                                    <button className='btn btn-danger' onClick={deleteOption}
+                                        style={{ margin: '1em' }}>Delete last option</button>
                                 </div>
+                                <br />
                                 <div className='mb-4' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <label style={{ margin: '0', marginRight: '10px' }}>Start Time</label>
                                     <input
@@ -75,6 +112,7 @@ const Poll = () => {
                                         style={{ textAlign: 'center' }}
                                     />
                                 </div>
+                                <br />
                                 <div className='mb-4' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <label style={{ margin: '0', marginRight: '10px' }}>Start Date</label>
                                     <input
@@ -84,6 +122,7 @@ const Poll = () => {
                                         style={{ textAlign: 'center' }}
                                     />
                                 </div>
+                                <br />
                                 <div className='mb-4' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <label style={{ margin: '0', marginRight: '10px' }}>End Time</label>
                                     <input
@@ -93,6 +132,7 @@ const Poll = () => {
                                         style={{ textAlign: 'center' }}
                                     />
                                 </div>
+                                <br />
                                 <div className='mb-4' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <label style={{ margin: '0', marginRight: '10px' }}>End Date</label>
                                     <input
@@ -103,20 +143,22 @@ const Poll = () => {
                                     />
                                 </div>
                             </div>
-                            <button type="submit" className='btn btn-success w-100'>Submit</button>
+                            <br />
+                            <div>
+                                <button onClick={createPoll}>Create Poll</button>
+                                <LinkButton to="/" text="Cancel" />
+                            </div>
                         </div>
                     </form>
                 </div>
-                <div className='livePoll'>
+                {/* <div className='livePoll'>
                     <h2>Live Polls</h2>
                     <div className='buttonContainer'>
                         <button type="submit" className='btn btn-success w-100'>Poll 1</button>
                         <button type="submit" className='btn btn-success w-100'>Poll 2</button>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     );
 }
-
-export { Poll };
