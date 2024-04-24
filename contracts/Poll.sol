@@ -55,11 +55,6 @@ contract Poll {
         return name;
     }
 
-    // function addCandidate(string memory _name, address _candidateAddress) public onlyOwner {
-    //     candidates.push(Candidate(_name, _candidateAddress, 0));
-    //     console.log("Candidate %s added!", _name);
-    // }
-
     function addCandidate(string memory _name, address _candidateAddress) public {
         candidates.push(Candidate(_name, _candidateAddress, 0));
     }
