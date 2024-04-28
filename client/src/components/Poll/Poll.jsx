@@ -4,8 +4,8 @@ import './Poll.css'
 import LinkButton from '../LinkButton/LinkButton';
 import InputWithLabel from '../InputWithLabel/InputWithLabel';
 import { ethers } from 'ethers';
-import abi from '../../artifacts/Poll.json'
-import contractAddress from '../../artifacts/contractAddress.json';
+import abi from '../../contracts/Poll.json'
+import contractAddress from '../../contracts/contractAddress.json';
 
 export default function Poll() {
 
@@ -13,6 +13,7 @@ export default function Poll() {
     const [provider, setProvider] = React.useState(null);
     const [pollName, setPollName] = React.useState("");
     const pollAddress = contractAddress.Poll;
+    // const hardhatPollAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
     const contractABI = abi.abi;
 
     const createPoll = async (event) => {
@@ -21,6 +22,7 @@ export default function Poll() {
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             const contract = new ethers.Contract(pollAddress, contractABI, signer);
+            // const contract = new ethers.Contract(hardhatPollAddress, contractABI, signer);
             await contract.setName("TEST POLL");
             setPollName(await contract.getName());
             window.alert(`${pollName} successfully created!`);
