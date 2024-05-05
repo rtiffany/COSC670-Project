@@ -59,12 +59,12 @@ export default function Poll() {
 
     return (
         <div>
-            <div className='d-flex vh-100 bg-dark-grey justify-content-center align-items-center content'>
+            <div className='d-flex vh-100 justify-content-center align-items-center content'>
                 <div className='login-form col-md-5' style={{ margin: '20px 100px', display: 'flex', flexDirection: 'column', paddingTop: '20px' }}>
                     <form style={{ flex: 1 }}>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <div style={{ flex: 1 }}>
-                                <div className='mb-4' style={{ display: 'flex', alignItems: 'center' }}>
+                                <div className='mb-4' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                                     <label style={{ margin: '0', marginRight: '10px' }}>Poll Name</label>
                                     <input
                                         type='text'

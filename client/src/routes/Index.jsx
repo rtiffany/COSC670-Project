@@ -4,6 +4,7 @@ export default function Index() {
   return (
     <>
       {/* <Button>Configure Poll</Button> */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <h1>Decentralized Voting</h1>
       <form method="post">
       <Link to="configurePoll">
@@ -13,6 +14,7 @@ export default function Index() {
         <button type="submit">Vote</button>
       </Link>
       </form>
+      </div>
     </>
   )
 }
