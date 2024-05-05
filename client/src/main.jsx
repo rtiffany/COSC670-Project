@@ -9,6 +9,7 @@ import ConfigurePoll from './routes/ConfigurePoll.jsx';
 import Vote from './routes/Vote.jsx';
 import VoterLogin from './routes/VoterLogin.jsx';
 import PollDash from './routes/PollDash.jsx';
+import Results from './routes/Results.jsx';
 
 const router = createBrowserRouter([
   {
@@ -32,7 +33,12 @@ const router = createBrowserRouter([
       {
         path: "configurePoll/pollDash",
         element: <PollDash/>
+      },
+      {
+        path: "Results",
+        element: <Results/>
       }
+
     ]
   },
 ]);

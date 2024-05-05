@@ -1,6 +1,7 @@
 import './Login.css';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import ConnectWallet from '../ConnectWallet/ConnectWallet';
 
 
 export default function Login() {
@@ -9,7 +10,7 @@ export default function Login() {
     const handleSubmit = (e) => {
         e.preventDefault(); // Prevent default form submission
         // Navigate to '/poll' upon form submission
-        navigate('/poll');
+        navigate('/voterLogin/vote');
     };
 
 
@@ -22,13 +23,6 @@ export default function Login() {
                     <form onSubmit={handleSubmit}>
                         <div className='mb-4'>
                             <h1 style={{ textAlign: "center" }}>Welcome to DVote System</h1>
-                            <input
-                                type='text'
-                                placeholder='Enter Your Wallet Address'
-                                className='form-control'
-                                style={{ textAlign: 'center' }}
-                                size={45}
-                            />
                         </div>
                         <Link to="vote">
                         <button type="submit" className='btn btn-success w-100'>Submit</button>

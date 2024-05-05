@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 
 contract Poll {
     address public electionManager;
@@ -18,24 +18,27 @@ contract Poll {
         bool voted;
     }
 
-    struct Proposal {
+
+    struct PollData {
+        uint256 startTime;
+        uint256 endTime;
+        mapping(address => Voter) voters;
+        uint256 voterCount;
         string name;
         string description;
+        Candidate[] candidates;
+        bool privateVote;
+        bool voteStarted;
+        bool voteEnded;
     }
 
-    Candidate[] public candidates;
-    Proposal[] public proposals;
 
-    bool privateVote;
-    bool public voteStarted;
-    bool public voteEnded;
-    uint256 public startTime;
-    uint256 public endTime;
+    mapping(string => PollData) public polls;
 
-    constructor(uint256 _startTime, uint256 _endTime) {
+    event PollCreated(string name);
+
+    constructor() {
         electionManager = msg.sender;
-        startTime = _startTime;
-        endTime = _endTime;
     }
 
     modifier onlyOwner() {
@@ -43,106 +46,74 @@ contract Poll {
         _;
     }
 
-    function getAddress() public view returns(address) {
-        return address(this);
+   function createPoll(
+    string memory _name,
+    string memory _description,
+    string[] memory _candidateNames,
+    address[] memory _candidateAddresses,
+    uint256 _startTime,
+    uint256 _endTime
+) public {
+    require(!pollExists(_name), "Poll with the same name already exists.");
+    require(_startTime > block.timestamp, "Start time must be in the future.");
+    require(_endTime > _startTime, "End time must be after start time.");
+   
+    polls[_name].name = _name;
+    polls[_name].description = _description;
+    polls[_name].startTime = _startTime;
+    polls[_name].endTime = _endTime;
+
+
+     // Toggle voteStarted if the current block timestamp is greater than or equal to the start time
+    if (block.timestamp >= _startTime) {
+        polls[_name].voteStarted = true;
     }
 
-    function setName(string memory _name) external {
-        name = _name;
+    // Toggle voteEnded if the current block timestamp is greater than or equal to the end time
+    if (block.timestamp >= _endTime) {
+        polls[_name].voteEnded = true;
     }
 
-    function getName() external view returns(string memory) {
-        return name;
+    for (uint256 i = 0; i < _candidateNames.length; i++) {
+        polls[_name].candidates.push(Candidate(_candidateNames[i], _candidateAddresses[i], 0));
     }
 
-    function addCandidate(string memory _name, address _candidateAddress) public {
-        candidates.push(Candidate(_name, _candidateAddress, 0));
+    emit PollCreated(_name);
+}
+
+
+    function pollExists(string memory _name) public view returns (bool) {
+        return bytes(polls[_name].name).length != 0;
     }
 
-    function getCandidateName(address _candidateAddress) public view returns (string memory) {
-        // iterate over Candidates array and find matching one
-        for (uint i = 0; i < candidates.length; i++) {
-            if (candidates[i].candidateAddress == _candidateAddress) {
-                return candidates[i].name;
-            }
-        }
-        return "Not found";
+
+    function getVotes(string memory _pollName) public view returns (uint256[] memory) {
+    require(pollExists(_pollName), "Poll does not exist.");
+
+    uint256[] memory votes = new uint256[](polls[_pollName].candidates.length);
+    for (uint256 i = 0; i < polls[_pollName].candidates.length; i++) {
+        votes[i] = polls[_pollName].candidates[i].voteCount;
     }
+    return votes;
+}
 
-    function getCandidateVoteCount(address _candidateAddress) public view returns (uint256) {
-        // iterate over Candidates array and find matching one
-        for (uint i = 0; i < candidates.length; i++) {
-            if (candidates[i].candidateAddress == _candidateAddress) {
-                return candidates[i].voteCount;
-            }
-        }
-        // TODO: Figure out what this should return if not found
-    }
+    function vote(string memory _pollName, uint256 _candidateIndex) public {
+    require(pollExists(_pollName), "Poll does not exist.");
+    require(polls[_pollName].voteStarted, "Vote has not started yet.");
+    require(!polls[_pollName].voteEnded, "Vote has already ended.");
+    require(!polls[_pollName].voters[msg.sender].voted, "You have already voted.");
+    require(_candidateIndex < polls[_pollName].candidates.length, "Invalid candidate index.");
 
-    function addVoter(address _voterAddress) public {
-        require(!voters[_voterAddress].voted, "Voter already added.");
-        voters[_voterAddress].voted = false;
-        voterCount++;
-    }
+    polls[_pollName].voters[msg.sender].voted = true;
+    polls[_pollName].candidates[_candidateIndex].voteCount++;
+   }
+   
 
-    function startVote() public {
-        require(block.timestamp >= startTime, "Vote has not started yet.");
-        require(!voteStarted, "Vote has already started.");
-        require(candidates.length > 0, "There are no candidates added.");
-        require(voterCount > 0, "There are no voters added.");
+   function tallyVotes(string memory _pollName) public view returns (uint256[] memory) {
+    require(pollExists(_pollName), "Poll does not exist.");
+    require(polls[_pollName].voteEnded, "Vote has not ended yet.");
 
-        voteStarted = true;
-    }
+    return getVotes(_pollName);
+}
 
-    function endVote() public {
-        require(voteStarted, "Vote has not started yet.");
-        require(!voteEnded, "Vote has already ended.");
-        //require(block.timestamp >= endTime, "Vote has not ended yet.");
-        voteStarted = false;
-        voteEnded = true;
-    }
-
-    function voteStartStatus() public  view returns (bool) {
-        return voteStarted;
-    }
-
-    function voteEndStatus() public  view returns (bool) {
-        return voteEnded;
-    }
-
-    function getVotes() public view returns (uint256[] memory) {
-        uint256[] memory votes = new uint256[](candidates.length);
-        for (uint256 i = 0; i < candidates.length; i++) {
-            votes[i] = candidates[i].voteCount;
-        }
-        return votes;
-    }
-
-    function vote(uint256 _candidateIndex) public {
-        require(voteStarted, "Vote has not started yet.");
-        require(!voteEnded, "Vote has already ended.");
-        require(!voters[msg.sender].voted, "You have already voted.");
-        require(_candidateIndex < candidates.length, "Invalid candidate index.");
-
-        voters[msg.sender].voted = true;
-        candidates[_candidateIndex].voteCount++;
-    }
-
-    function getVoters() public view returns (address[] memory) {
-        address[] memory voterAddresses = new address[](voterCount);
-        uint256 count = 0;
-        for (uint256 i = 0; i < candidates.length; i++) {
-            if (!voters[candidates[i].candidateAddress].voted) {
-                voterAddresses[count] = candidates[i].candidateAddress;
-                count++;
-            }
-        }
-        return voterAddresses;
-    }
-
-    function tallyVotes() public view returns (uint256[] memory) {
-        require(voteEnded, "Vote has not ended yet.");
-
-        return getVotes();
-    }
 }

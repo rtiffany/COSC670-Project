@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
-import Poll from "../components/Vote/VotePage.jsx";
+import ResultPage from "../components/Results/ResultPage"
 
-export default function Vote() {
+export default function Results() {
     return (
         <>
-            <h1>Live Polls</h1>
-            <Poll/>
+            <h1>Results</h1>
+            <ResultPage/>
             <Link to="/">
                 <button type="submit">Home</button>
             </Link>
