@@ -12,9 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm run build
+        working-directory: ./client
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DVOTE_E6D29 }}
           channelId: live
           projectId: dvote-e6d29
+          entryPoint: ./client
