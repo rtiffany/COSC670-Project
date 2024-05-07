@@ -34,6 +34,7 @@ contract Poll {
 
 
     mapping(string => PollData) public polls;
+    string[] public pollNames; 
 
     event PollCreated(string name);
 
@@ -55,7 +56,7 @@ contract Poll {
     uint256 _endTime
 ) public {
     require(!pollExists(_name), "Poll with the same name already exists.");
-    require(_startTime > block.timestamp, "Start time must be in the future.");
+    //require(_startTime > block.timestamp, "Start time must be in the future.");
     require(_endTime > _startTime, "End time must be after start time.");
    
     polls[_name].name = _name;
@@ -66,7 +67,7 @@ contract Poll {
     for (uint256 i = 0; i < _candidateNames.length; i++) {
         polls[_name].candidates.push(Candidate(_candidateNames[i], _candidateAddresses[i], 0));
     }
-
+    pollNames.push(_name); // Add the new poll name to the array
     emit PollCreated(_name);
 }
 
@@ -117,5 +118,51 @@ contract Poll {
 
     return getVotes(_pollName);
 }
+
+ function getPollDetails(string memory _pollName) public view returns (string memory, string memory, Candidate[] memory) {
+        require(pollExists(_pollName), "Poll does not exist.");
+
+        return (polls[_pollName].name, polls[_pollName].description, polls[_pollName].candidates);
+    }
+
+
+ function getLivePolls() public view returns (string[] memory, string[] memory, string[][] memory) {
+    uint256 livePollCount = 0;
+
+    // Determine the number of live polls
+    for (uint256 i = 0; i < pollNames.length; i++) {
+        if (polls[pollNames[i]].startTime <= block.timestamp && block.timestamp < polls[pollNames[i]].endTime) {
+            livePollCount++;
+        }
+    }
+
+    // Initialize arrays to store live poll details
+    string[] memory livePollNames = new string[](livePollCount);
+    string[] memory livePollDescriptions = new string[](livePollCount);
+    string[][] memory livePollCandidates = new string[][](livePollCount);
+
+    // Retrieve live poll details
+    uint256 index = 0;
+    for (uint256 i = 0; i < pollNames.length; i++) {
+        if (polls[pollNames[i]].startTime <= block.timestamp && block.timestamp < polls[pollNames[i]].endTime) {
+            // Store poll name and description
+            livePollNames[index] = polls[pollNames[i]].name;
+            livePollDescriptions[index] = polls[pollNames[i]].description;
+
+            // Store candidate names
+            string[] memory candidateNames = new string[](polls[pollNames[i]].candidates.length);
+            for (uint256 j = 0; j < polls[pollNames[i]].candidates.length; j++) {
+                candidateNames[j] = polls[pollNames[i]].candidates[j].name;
+            }
+            livePollCandidates[index] = candidateNames;
+            index++;
+        }
+    }
+
+    return (livePollNames, livePollDescriptions, livePollCandidates);
+}
+
+
+
 
 }
