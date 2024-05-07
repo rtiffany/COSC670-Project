@@ -1,12 +1,12 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import '../Login/Login.css';
 import './vote.css'
-// import LinkButton from '../LinkButton/LinkButton';
+import LinkButton from '../LinkButton/LinkButton';
 // import InputWithLabel from '../InputWithLabel/InputWithLabel';
-import { AbstractProvider, ethers } from 'ethers';
+import { ConstructorFragment, ethers } from 'ethers';
 import abi from '../../contracts/Poll.json'
 import contractAddress from '../../contracts/contractAddress.json';
-import { act } from 'react';
 
 
 export default function VotePage() {
@@ -25,12 +25,9 @@ export default function VotePage() {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
         const contract = new ethers.Contract(contractAddress.Poll, abi.abi, signer);
-        const [name, description, candidates] = await contract.getPollDetails('TestPoll4');
+        const [name, description, candidates] = await contract.getPollDetails('TestPoll6');
         setPollName(name);
         setPollDescription(description);
-        console.log("candidates are:", candidates);
-       // for (int i = 0; i<candidates.length; )
-       // candidateName
         setCandidateState(candidates);
 
 
@@ -45,6 +42,39 @@ export default function VotePage() {
         // }
     }
 
+    const handleVote = async (event) => {
+        /* Submit the current selectedValue and invoke the SC vote function.
+        The smart contract takes the candidate name and address */
+        event.preventDefault();
+
+        let candidateName;
+        let candidateAddress;
+
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(contractAddress.Poll, abi.abi, signer);
+
+        for (let i = 0; i < candidateState.length; i++) {
+            if (candidateState[i][0] === selectedValue) {
+                candidateName = candidateState[i][0];
+                candidateAddress = candidateState[i][1];
+            }
+        }
+
+        window.alert("You are voting for " + candidateName + " with address " + candidateAddress);
+
+        // TODO: Add error handling 
+        await contract.vote(pollName, candidateAddress);
+    }
+
+    // const getResults = async (event) => {
+    //     event.preventDefault();
+    //     const provider = new ethers.BrowserProvider(window.ethereum);
+    //     const signer = await provider.getSigner();
+    //     const contract = new ethers.Contract(contractAddress.Poll, abi.abi, signer);
+    //     const results = await contract.getVotes(pollName); 
+    //     console.log(results);
+    // }
 
     React.useEffect(() => {
         if (typeof window !== "undefined") {
@@ -60,25 +90,33 @@ export default function VotePage() {
 
     return (
         <>
-            <h2>Poll name: {pollName}</h2>
-            <h3>Poll Description: {pollDescription}</h3>
-            <h3>Candidates:</h3>
-            {
-                candidateState.map((candidate, index) => (
-                    <>
-                        <input
-                            type='radio'
-                            value={candidate[0]}
-                            name='option'
-                            key={index}
-                            onChange={handleRadioChange}
-                        />
-                        <label>{candidate[0]}</label>
-                        <br/>
-                    </>
-                ))
-            }
-            {console.log("Current selection:" + selectedValue)}
+            <form>
+                <h1>Poll name: {pollName}</h1>
+                <h2>Poll Description: {pollDescription}</h2>
+                <h2>Candidates:</h2>
+                {
+                    candidateState.map((candidate, index) => (
+                        <>
+                            <input
+                                type='radio'
+                                value={candidate[0]}
+                                name='option'
+                                key={index}
+                                onChange={handleRadioChange}
+                            />
+                            <label>{candidate[0]}</label>
+                            <br />
+                        </>
+                    ))
+                }
+                <button type='submit' onClick={handleVote}>Vote</button>
+                <Link id='linkButton' to="/voterLogin">
+                    <button type='submit'>Back</button>
+                </Link>
+                <Link id='linkButton' to="/">
+                    <button type='submit'>Home</button>
+                </Link>
+            </form>
         </>
     )
 }
