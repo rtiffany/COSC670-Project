@@ -57,6 +57,7 @@ export default function Poll() {
         
 
         try {
+            window.alert("Creating poll. Please wait...");
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             const contract = new ethers.Contract(pollAddress, contractABI, signer);
@@ -64,7 +65,10 @@ export default function Poll() {
             await contract.createPoll(pollName, pollDesc,
             optionNames, optionAddresses, startUnixTimestamp, endUnixTimestamp);
 
+            window.alert("Poll creation response received waiting for verification.");
+
             const Poll = await contract.pollExists(pollName);
+            
             
             if(Poll) {
             window.alert(`${pollName} successfully created!`);

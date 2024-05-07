@@ -63,17 +63,6 @@ contract Poll {
     polls[_name].startTime = _startTime;
     polls[_name].endTime = _endTime;
 
-
-     // Toggle voteStarted if the current block timestamp is greater than or equal to the start time
-    if (block.timestamp >= _startTime) {
-        polls[_name].voteStarted = true;
-    }
-
-    // Toggle voteEnded if the current block timestamp is greater than or equal to the end time
-    if (block.timestamp >= _endTime) {
-        polls[_name].voteEnded = true;
-    }
-
     for (uint256 i = 0; i < _candidateNames.length; i++) {
         polls[_name].candidates.push(Candidate(_candidateNames[i], _candidateAddresses[i], 0));
     }
@@ -97,16 +86,29 @@ contract Poll {
     return votes;
 }
 
-    function vote(string memory _pollName, uint256 _candidateIndex) public {
+    function vote(string memory _pollName, address _candidateAddress) public {
     require(pollExists(_pollName), "Poll does not exist.");
-    require(polls[_pollName].voteStarted, "Vote has not started yet.");
-    require(!polls[_pollName].voteEnded, "Vote has already ended.");
-    require(!polls[_pollName].voters[msg.sender].voted, "You have already voted.");
-    require(_candidateIndex < polls[_pollName].candidates.length, "Invalid candidate index.");
+    
+    // Check if voting has started
+    require(block.timestamp >= polls[_pollName].startTime, "Voting has not started yet."); 
+    // Check if voting has ended
+    require(block.timestamp < polls[_pollName].endTime, "Voting has already ended.");
 
-    polls[_pollName].voters[msg.sender].voted = true;
-    polls[_pollName].candidates[_candidateIndex].voteCount++;
-   }
+    require(!polls[_pollName].voters[msg.sender].voted, "You have already voted.");
+
+    bool candidateFound = false;
+    for (uint256 i = 0; i < polls[_pollName].candidates.length; i++) {
+        if (polls[_pollName].candidates[i].candidateAddress == _candidateAddress) {
+            candidateFound = true;
+            polls[_pollName].voters[msg.sender].voted = true;
+            polls[_pollName].candidates[i].voteCount++;
+            break;
+        }
+    }
+    
+    require(candidateFound, "Candidate not found.");
+}
+
    
 
    function tallyVotes(string memory _pollName) public view returns (uint256[] memory) {

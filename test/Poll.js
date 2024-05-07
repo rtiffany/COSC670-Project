@@ -13,7 +13,7 @@ describe("Poll Contract", function () {
   beforeEach(async function () {
     [owner, manager, voter1, voter2, candidate1, candidate2] = await ethers.getSigners();
     Poll = await ethers.getContractFactory("Poll");
-    poll = await Poll.deploy(0, 1000);
+    poll = await Poll.deploy();
   });
 
   it("Should create a poll", async function () {
@@ -31,11 +31,12 @@ describe("Poll Contract", function () {
     expect(pollData.description).to.equal("Description of the test poll");
     expect(pollData.startTime).to.be.greaterThan(Math.floor(Date.now() / 1000));
     expect(pollData.endTime).to.be.greaterThan(pollData.startTime);
+
+    await poll.pollExists("Test Poll");
    // expect(pollData.candidates.length).to.equal(2);
   });
 
   it("Should allow voters to vote", async function () {
-    this.timeout(90000);
     const currentTimestamp = (await ethers.provider.getBlock('latest')).timestamp;
     console.log("the current timestamp is:",currentTimestamp);
     console.log("the current timestamp is:",);
@@ -48,7 +49,7 @@ describe("Poll Contract", function () {
       ["Candidate 1", "Candidate 2"],
       [candidate1.address, candidate2.address],
       startTime, // Set the calculated start time
-      startTime + 120 // End time 2 minutes from the start time
+      startTime + 20 // End time 2 minutes from the start time
     );
 
     // Start the vote
@@ -58,12 +59,12 @@ describe("Poll Contract", function () {
     const currentTimestamp2 = (await ethers.provider.getBlock('latest')).timestamp;
     console.log(currentTimestamp2);
     // Voter 1 votes for Candidate 1
-    await poll.connect(voter1).vote("Test Poll", 0);
+    await poll.connect(voter1).vote("Test Poll", candidate1.address);
 
     // Voter 2 votes for Candidate 2
-    await poll.connect(voter2).vote("Test Poll", 1);
+    await poll.connect(voter2).vote("Test Poll", candidate2.address);
 
-    const votes = await poll.tallyVotes("Test Poll");
+    const votes = await poll.getVotes("Test Poll");
     expect(votes[0]).to.equal(1); // Candidate 1 received 1 vote
     expect(votes[1]).to.equal(1); // Candidate 2 received 1 vote
   });
