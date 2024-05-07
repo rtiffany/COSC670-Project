@@ -25,9 +25,12 @@ export default function VotePage() {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
         const contract = new ethers.Contract(contractAddress.Poll, abi.abi, signer);
-        const [name, description, candidates] = await contract.getPollDetails('TestPoll3');
+        const [name, description, candidates] = await contract.getPollDetails('TestPoll4');
         setPollName(name);
         setPollDescription(description);
+        console.log("candidates are:", candidates);
+       // for (int i = 0; i<candidates.length; )
+       // candidateName
         setCandidateState(candidates);
 
 

@@ -26,7 +26,7 @@ export default function Poll() {
 
     const createPoll = async (event) => {
         event.preventDefault();
-        const optionNames = options.map(option => option.name);
+        const optionNames = options.map(option => option.value);
         const optionAddresses = options.map(option => option.candidateAddress);
         // Check if the pollName is empty
         if (!pollName.trim()) {
@@ -175,7 +175,7 @@ console.log(endUnixTimestamp);
 
  
 
-    console.log();
+    console.log(options);
     console.log(pollName);
 
     return (
