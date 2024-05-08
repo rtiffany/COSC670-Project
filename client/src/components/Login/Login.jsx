@@ -59,15 +59,11 @@ export default function Login() {
                         </>
                     ))
                 }
-                {/* <Link to="vote">
-                <button type="submit" onClick={handleSubmit}>Submit</button>
-                </Link> */}
 
                 <Link to="vote" state={{fromHome: {selectedPoll}}}>
                 <button>Submit</button>
                 </Link>
 
-                {/* {console.log(selectedPoll)} */}
                 <Link to="/">
                     <button type="submit">Home</button>
                 </Link>
