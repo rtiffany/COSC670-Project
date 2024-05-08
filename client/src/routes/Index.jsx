@@ -16,6 +16,8 @@ export default function Index() {
         <button type="submit">Vote</button>
       </Link>
       </form>
+      <br></br>
+      <img src="/vote.webp" alt="Vote!" height="25%" width="25%" />
       </div>
     </>
   )
