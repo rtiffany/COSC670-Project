@@ -52,7 +52,7 @@ export default function Login() {
                 }
 
                 <Link to="vote" state={{fromHome: {selectedPoll}}}>
-                <button>Submit</button>
+                <button disabled={!selectedPoll}>Submit</button>
                 </Link>
 
                 <Link to="/">

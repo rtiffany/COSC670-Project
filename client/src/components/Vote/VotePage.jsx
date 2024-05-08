@@ -96,14 +96,14 @@ export default function VotePage() {
                         </>
                     ))
                 }
-                <button type='submit' onClick={handleVote}>Vote</button>
+                <button type='submit' onClick={handleVote} disabled={!selectedValue}>Vote</button>
+
                 <Link id='linkButton' to="/voterLogin">
                     <button type='submit'>Back</button>
                 </Link>
                 <Link id='linkButton' to="/">
                     <button type='submit'>Home</button>
                 </Link>
-                {console.log(data)}
             </form>
         </>
     )

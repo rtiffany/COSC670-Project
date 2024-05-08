@@ -291,7 +291,7 @@ console.log(endUnixTimestamp);
                             <br />
                             <div>
                                 <button onClick={createPoll}>Create Poll</button>
-                                <LinkButton to="/" text="Cancel" />
+                                <LinkButton to="/" text="Home" />
                             </div>
                         </div>
                     </form>
