@@ -35,14 +35,14 @@ export default function Poll() {
         } else if (!pollDesc.trim()) {
             window.alert("Please enter a poll description.");
             return; // Prevent further execution of the function
-        };
+        }
         for (const option of options) {
             if (!option.value.trim() || !option.candidateAddress.trim()) {
                 //console.log(option);
                 window.alert("Please fill in all candidate information.");
                 return; // Prevent further execution of the function
             }
-        };
+        }
         if (!startTime || !startDate || !endTime || !endDate){
             window.alert("Please fill in the Poll start and end time");
             return;
@@ -52,7 +52,7 @@ export default function Poll() {
         } else if ((endDate < startDate) || (startDate === endDate && endTime < startTime)) {
             window.alert("Poll end time is set before its start time");
             return;
-        };
+        }
 
         
 
@@ -61,7 +61,6 @@ export default function Poll() {
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             const contract = new ethers.Contract(pollAddress, contractABI, signer);
-            // const contract = new ethers.Contract(hardhatPollAddress, contractABI, signer);
             await contract.createPoll(pollName, pollDesc,
             optionNames, optionAddresses, startUnixTimestamp, endUnixTimestamp);
 

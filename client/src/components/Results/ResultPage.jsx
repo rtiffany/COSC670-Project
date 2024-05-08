@@ -2,7 +2,7 @@ import * as React from 'react';
 import '../Login/Login.css';
 import './Result.css';
 import { ethers } from 'ethers';
-import { Link, useLocation  } from 'react-router-dom';
+import { useLocation  } from 'react-router-dom';
 import {Chart as ChartJs, ArcElement, Tooltip, Legend} from 'chart.js/auto';
 ChartJs.register(ArcElement, Tooltip, Legend);
 
