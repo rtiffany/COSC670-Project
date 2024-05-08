@@ -1,15 +1,17 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation  } from 'react-router-dom';
 import '../Login/Login.css';
 import './vote.css'
-import LinkButton from '../LinkButton/LinkButton';
-// import InputWithLabel from '../InputWithLabel/InputWithLabel';
-import { ConstructorFragment, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import abi from '../../contracts/Poll.json'
 import contractAddress from '../../contracts/contractAddress.json';
 
 
 export default function VotePage() {
+    // TODO: Try to receive data
+    const  location = useLocation();
+    const {fromHome} = location.state;
+    let data = fromHome.selectedPoll;
 
     const [provider, setProvider] = React.useState();
     const [pollName, setPollName] = React.useState();
@@ -25,21 +27,10 @@ export default function VotePage() {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
         const contract = new ethers.Contract(contractAddress.Poll, abi.abi, signer);
-        const [name, description, candidates] = await contract.getPollDetails('TestPoll6');
+        const [name, description, candidates] = await contract.getPollDetails(data);
         setPollName(name);
         setPollDescription(description);
         setCandidateState(candidates);
-
-
-        // console.log('Initial page render')
-        // console.log(`Name: ${pollName}`);
-        // console.log(`Description: ${pollDescription}`);
-        // console.log(`Candidates: ${candidateState}`);
-        // // activePolls = await contract.getLivePolls();
-        // console.log("Currently Active Polls")
-        // for (let i = 0; i < activePolls.length; i++) {
-        // console.log(activePolls[i][1])
-        // }
     }
 
     const handleVote = async (event) => {
@@ -67,15 +58,6 @@ export default function VotePage() {
         await contract.vote(pollName, candidateAddress);
     }
 
-    // const getResults = async (event) => {
-    //     event.preventDefault();
-    //     const provider = new ethers.BrowserProvider(window.ethereum);
-    //     const signer = await provider.getSigner();
-    //     const contract = new ethers.Contract(contractAddress.Poll, abi.abi, signer);
-    //     const results = await contract.getVotes(pollName); 
-    //     console.log(results);
-    // }
-
     React.useEffect(() => {
         if (typeof window !== "undefined") {
             if (window.ethereum) {
@@ -84,7 +66,6 @@ export default function VotePage() {
                 console.error("Please install MetaMask!");
             }
         }
-
         GetData();
     }, []);
 
@@ -116,6 +97,7 @@ export default function VotePage() {
                 <Link id='linkButton' to="/">
                     <button type='submit'>Home</button>
                 </Link>
+                {console.log(data)}
             </form>
         </>
     )
