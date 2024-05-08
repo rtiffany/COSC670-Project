@@ -6,74 +6,121 @@ import { Pie } from 'react-chartjs-2';
 import {Chart as ChartJs, ArcElement, Tooltip, Legend} from 'chart.js/auto';
 ChartJs.register(ArcElement, Tooltip, Legend);
 
-//import abi from '../../contracts/Poll.json'
-//import contractAddress from '../../contracts/contractAddress.json';
+import abi from '../../contracts/Poll.json'
+import contractAddress from '../../contracts/contractAddress.json';
 
 export default function ResultPage() {
+  const [provider, setProvider] = React.useState(null);
+  const [pollData, setPollData] = React.useState({
+      name: "",
+      description: "",
+      startTime: "",
+      startDate: "",
+      endTime: "",
+      endDate: "",
+      candidateNames: [],
+      voteCounts: []
+  });
+  const canvasRef = React.useRef(null);
+  const chartRef = React.useRef(null);
+  const pollAddress = contractAddress.Poll;
+  const contractABI = abi.abi;
 
-     const [provider, setProvider] = React.useState(null);
-     const [ChartData, setChartData] = React.useState(null);
-     
-     
-    // const [pollName, setPollName] = React.useState("");
-    // const pollAddress = contractAddress.Poll;
-    // const contractABI = abi.abi;
+  const formatTime = (timestamp) => {
+      const date = new Date(Number(timestamp) * 1000); // Convert BigInt to number and then multiply
+      const hours = date.getHours().toString().padStart(2, '0'); // Ensure two-digit format
+      const minutes = date.getMinutes().toString().padStart(2, '0'); // Ensure two-digit format
+      return `${hours}:${minutes}`;
+  };
 
-    // const createPoll = async (event) => {
-    //     event.preventDefault();
-    //     try {
-    //         const provider = new ethers.BrowserProvider(window.ethereum);
-    //         const signer = await provider.getSigner();
-    //         const contract = new ethers.Contract(pollAddress, contractABI, signer);
-    //         await contract.setName("TEST POLL");
-    //         setPollName(await contract.getName());
-    //         window.alert(`${pollName} successfully created!`);
-    //         // window.location.replace('configurePoll/pollDash');
-    //     } catch (error) {
-    //         window.alert(error);
-    //     }
-    // }
+  const formatDate = (timestamp) => {
+      const date = new Date(Number(timestamp) * 1000); // Convert BigInt to number and then multiply
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is zero-based
+      const day = date.getDate().toString().padStart(2, '0');
+      return `${year}/${month}/${day}`;
+  };
 
-    const generateChartData = () => {
-        // Sample data for the pie chart
-        return {
-          labels: ['Candid 1', 'Candid 2', 'Candid 3', 'Candid 4', 'Candid 5', 'Candid 6'],
-          datasets: [
-            {
-              label: 'Sample Dataset',
-              data: [12, 19, 3, 5, 2, 3],
-              backgroundColor: [
-                'rgb(255, 99, 132)',
-                'rgb(54, 162, 235)',
-                'rgb(255, 205, 86)',
-                'rgb(75, 192, 192)',
-                'rgb(153, 102, 255)',
-                'rgb(255, 159, 64)',
-              ],
-              hoverOffset: 4,
-            },
-          ],
-        };
+  React.useEffect(() => {
+      if (typeof window !== "undefined") {
+          if (window.ethereum) {
+              setProvider(new ethers.BrowserProvider(window.ethereum));
+          } else {
+              console.error("Please install MetaMask!");
+          }
+      }
+  }, []); // Empty dependency array to run once when the component mounts
+
+  React.useEffect(() => {
+      const fetchData = async () => {
+          try {
+              if (!provider || !pollAddress || !contractABI) {
+                  console.error("Provider, poll address, or contract ABI not available.");
+                  return;
+              }
+              const contract = new ethers.Contract(pollAddress, contractABI, provider);
+              const [stTime, edTime, description, candidateNames, voteCounts] = await contract.getVotes("Test Poll");
+              console.log("start time",Number(stTime));
+              setPollData({
+                  name: "Test Poll",
+                  description,
+                  startTime: formatTime(stTime),
+                  startDate: formatDate(stTime),
+                  endTime: formatTime(edTime),
+                  endDate: formatDate(edTime),
+                  candidateNames,
+                  voteCounts
+              });
+          } catch (error) {
+              console.error(error);
+          }
       };
-  
-    React.useEffect(() => {
-          
-         if (typeof window !== "undefined") {
-           if (window.ethereum) {
-             setProvider(new ethers.BrowserProvider(window.ethereum));
-             // getCurrentAd()
-           } else {
-             console.error("Please install MetaMask!");
-           }
-         }
-        
-      }, []);
 
-    //   if (!ChartData) {
-    //     return null; // Render loading state until chart data is ready
-    // }
+      fetchData();
+  }, [provider, pollAddress, contractABI]); // Run when these dependencies change
 
-   const options = {};
+  React.useEffect(() => {
+      if (!pollData || !pollData.candidateNames || !pollData.voteCounts || pollData.candidateNames.length === 0 || pollData.voteCounts.length === 0) {
+          return;
+      }
+
+      const newChartData = {
+          labels: pollData.candidateNames,
+          datasets: [
+              {
+                  label: 'Vote Counts',
+                  data: pollData.voteCounts.map(count => Number(count)),
+                  backgroundColor: [
+                      'rgb(255, 99, 132)',
+                      'rgb(54, 162, 235)',
+                      'rgb(255, 205, 86)',
+                      'rgb(75, 192, 192)',
+                      'rgb(153, 102, 255)',
+                      'rgb(255, 159, 64)',
+                  ],
+                  hoverOffset: 4,
+              },
+          ],
+      };
+
+      if (chartRef.current) {
+          chartRef.current.destroy(); // Destroy existing chart
+      }
+
+      const ctx = canvasRef.current.getContext('2d');
+      chartRef.current = new ChartJs(ctx, {
+          type: 'pie',
+          data: newChartData,
+          options: {}
+      });
+
+      return () => {
+          if (chartRef.current) {
+              chartRef.current.destroy();
+          }
+      };
+  }, [pollData]);
+
     return (
         <div>
             <div className='d-flex vh-100 bg-dark-grey justify-content-center align-items-center content'>
@@ -83,45 +130,46 @@ export default function ResultPage() {
                             <div style={{ flex: 1 }}>
                                 <div className='mb-4' style={{ display: 'flex', alignItems: 'center' }}>
                                     <label style={{ margin: '0', marginRight: '10px' }}>Poll Name</label>
+                                    <span>{pollData.name}</span>
                                 </div>
                                 <br />
-                                <div>
-                                    <h2>Pie Chart Results</h2>
-                                    <Pie data={generateChartData()} options={options} />
-                                </div>
+                                {pollData.candidateNames.length > 0 && ( // Check if candidateNames array has data
+                                  <div>
+                                      <h2>Pie Chart Results</h2>
+                                      <canvas ref={canvasRef} />
+                                  </div>
+                                  )}
                                 <br />
                                 <div className='mb-4' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <label style={{ margin: '0', marginRight: '10px' }}>Poll Desc.</label>
+                                    <span>{pollData.description}</span>
                                 </div>
                                 <br />
                                 <div className='mb-4' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <label style={{ margin: '0', marginRight: '10px' }}>Start Time</label>
+                                    <span>{pollData.startTime}</span>
 
                                 </div>
                                 <br />
                                 <div className='mb-4' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <label style={{ margin: '0', marginRight: '10px' }}>Start Date</label>
+                                    <span>{pollData.startDate}</span>
                                 </div>
                                 <br />
                                 <div className='mb-4' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <label style={{ margin: '0', marginRight: '10px' }}>End Time</label>
+                                    <span>{pollData.endTime}</span>
                                 </div>
                                 <br />
                                 <div className='mb-4' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <label style={{ margin: '0', marginRight: '10px' }}>End Date</label>
+                                    <span>{pollData.endDate}</span>
                                 </div>
                             </div>
                             <br />
                         </div>
                     </form>
                 </div>
-                {/* <div className='livePoll'>
-                    <h2>Live Polls</h2>
-                    <div className='buttonContainer'>
-                        <button type="submit" className='btn btn-success w-100'>Poll 1</button>
-                        <button type="submit" className='btn btn-success w-100'>Poll 2</button>
-                    </div>
-                </div> */}
             </div>
         </div>
     );

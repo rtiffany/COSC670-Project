@@ -77,14 +77,39 @@ contract Poll {
     }
 
 
-    function getVotes(string memory _pollName) public view returns (uint256[] memory) {
+    function getVotes(string memory _pollName) public view returns (
+    uint256 startTime,
+    uint256 endTime,
+    string memory description,
+    string[] memory candidateNames,
+    uint256[] memory voteCounts
+) {
     require(pollExists(_pollName), "Poll does not exist.");
 
-    uint256[] memory votes = new uint256[](polls[_pollName].candidates.length);
-    for (uint256 i = 0; i < polls[_pollName].candidates.length; i++) {
-        votes[i] = polls[_pollName].candidates[i].voteCount;
+    PollData storage poll = polls[_pollName];
+    uint256 candidateCount = poll.candidates.length;
+
+    // Extracting candidate names and initializing vote counts
+    candidateNames = new string[](candidateCount);
+    voteCounts = new uint256[](candidateCount);
+    for (uint256 i = 0; i < candidateCount; i++) {
+        candidateNames[i] = poll.candidates[i].name;
+        voteCounts[i] = poll.candidates[i].voteCount;
     }
-    return votes;
+
+    
+
+    startTime = poll.startTime;
+    endTime = poll.endTime;
+    description = poll.description;
+
+    return (
+        startTime,
+        endTime,
+        description,
+        candidateNames,
+        voteCounts
+    );
 }
 
     function vote(string memory _pollName, address _candidateAddress) public {
@@ -108,16 +133,14 @@ contract Poll {
     }
     
     require(candidateFound, "Candidate not found.");
-}
+} 
 
-   
+//    function tallyVotes(string memory _pollName) public view returns (uint256[] memory) {
+//     require(pollExists(_pollName), "Poll does not exist.");
+//     require(polls[_pollName].voteEnded, "Vote has not ended yet.");
 
-   function tallyVotes(string memory _pollName) public view returns (uint256[] memory) {
-    require(pollExists(_pollName), "Poll does not exist.");
-    require(polls[_pollName].voteEnded, "Vote has not ended yet.");
-
-    return getVotes(_pollName);
-}
+//     return getVotes(_pollName);
+// }
 
  function getPollDetails(string memory _pollName) public view returns (string memory, string memory, Candidate[] memory) {
         require(pollExists(_pollName), "Poll does not exist.");
@@ -161,8 +184,6 @@ contract Poll {
 
     return (livePollNames, livePollDescriptions, livePollCandidates);
 }
-
-
 
 
 }

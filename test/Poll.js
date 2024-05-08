@@ -120,8 +120,29 @@ describe("Poll Contract", function () {
     // Voter 2 votes for Candidate 2
     await poll.connect(voter2).vote("Test Poll", candidate2.address);
 
-    const votes = await poll.getVotes("Test Poll");
-    expect(votes[0]).to.equal(1); // Candidate 1 received 1 vote
-    expect(votes[1]).to.equal(1); // Candidate 2 received 1 vote
+    // stTime and edTime are different, they're pulled from the contract
+    const [stTime, edTime, description, candidateNames, voteCounts] = await poll.getVotes("Test Poll");
+   
+    // Assert the start and end time
+    expect(Number(stTime)).to.be.a('number');
+    expect(Number(edTime)).to.be.a('number');
+ 
+    expect(Number(stTime)).to.be.lessThan(Number(edTime)); // Assuming start time should be less than end time
+    expect(description).to.equal("Description of the test poll");
+    // Assert the candidate names and their corresponding vote counts
+    expect(candidateNames.length).to.equal(2); // Assuming there are 2 candidates
+    expect(voteCounts.length).to.equal(2); // Assuming there are 2 vote counts
+    expect(candidateNames[0]).to.equal("Candidate 1");
+    expect(candidateNames[1]).to.equal("Candidate 2");
+    expect
+
+    // Check vote counts for each candidate
+    // For example, if you want to check if the first candidate received 1 vote
+    expect(voteCounts[0]).to.equal(1);
+    // Similarly, check for the second candidate
+    expect(voteCounts[1]).to.equal(1);
+
   });
+
+
 });
