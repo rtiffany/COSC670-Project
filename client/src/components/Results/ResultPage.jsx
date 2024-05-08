@@ -2,7 +2,7 @@ import * as React from 'react';
 import '../Login/Login.css';
 import './Result.css';
 import { ethers } from 'ethers';
-import { Pie } from 'react-chartjs-2';
+import { Link, useLocation  } from 'react-router-dom';
 import {Chart as ChartJs, ArcElement, Tooltip, Legend} from 'chart.js/auto';
 ChartJs.register(ArcElement, Tooltip, Legend);
 
@@ -10,8 +10,13 @@ import abi from '../../contracts/Poll.json'
 import contractAddress from '../../contracts/contractAddress.json';
 
 export default function ResultPage() {
-  const [provider, setProvider] = React.useState(null);
-  const [pollData, setPollData] = React.useState({
+     const  location = useLocation();
+     //const {fromVote} = location.state;
+     let data = location.state.data;
+     console.log("data is",data);
+
+     const [provider, setProvider] = React.useState(null);
+     const [pollData, setPollData] = React.useState({
       name: "",
       description: "",
       startTime: "",
@@ -59,10 +64,10 @@ export default function ResultPage() {
                   return;
               }
               const contract = new ethers.Contract(pollAddress, contractABI, provider);
-              const [stTime, edTime, description, candidateNames, voteCounts] = await contract.getVotes("Test Poll");
+              const [stTime, edTime, description, candidateNames, voteCounts] = await contract.getVotes(data);
               console.log("start time",Number(stTime));
               setPollData({
-                  name: "Test Poll",
+                  name: data,
                   description,
                   startTime: formatTime(stTime),
                   startDate: formatDate(stTime),

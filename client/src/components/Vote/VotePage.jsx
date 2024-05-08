@@ -1,23 +1,26 @@
 import * as React from 'react';
-import { Link, useLocation  } from 'react-router-dom';
+import { Link, useLocation} from 'react-router-dom';
 import '../Login/Login.css';
 import './vote.css'
 import { ethers } from 'ethers';
+import { useNavigate } from 'react-router-dom';
 import abi from '../../contracts/Poll.json'
 import contractAddress from '../../contracts/contractAddress.json';
 
 
 export default function VotePage() {
-    // TODO: Try to receive data
-    const  location = useLocation();
-    const {fromHome} = location.state;
-    let data = fromHome.selectedPoll;
-
+    
     const [provider, setProvider] = React.useState();
     const [pollName, setPollName] = React.useState();
     const [pollDescription, setPollDescription] = React.useState();
     const [candidateState, setCandidateState] = React.useState([]);
     const [selectedValue, setSelectedValue] = React.useState();
+    const navigate = useNavigate();
+
+    // TODO: Try to receive data
+    const  location = useLocation();
+    const {fromHome} = location.state;
+    let data = fromHome.selectedPoll;
 
     const handleRadioChange = (event) => {
         setSelectedValue(event.target.value);
@@ -56,6 +59,9 @@ export default function VotePage() {
 
         // TODO: Add error handling 
         await contract.vote(pollName, candidateAddress);
+
+        navigate("Results", { state: { data } });
+
     }
 
     React.useEffect(() => {

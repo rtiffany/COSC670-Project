@@ -35,7 +35,7 @@ const router = createBrowserRouter([
         element: <PollDash/>
       },
       {
-        path: "Results",
+        path: "voterLogin/vote/Results",
         element: <Results/>
       }
 
