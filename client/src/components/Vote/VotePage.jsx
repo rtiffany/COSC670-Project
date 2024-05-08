@@ -58,7 +58,11 @@ export default function VotePage() {
         window.alert("You are voting for " + candidateName + " with address " + candidateAddress);
 
         // TODO: Add error handling 
+        try {
         await contract.vote(pollName, candidateAddress);
+        } catch (error) {
+            window.alert("ERROR: You've already voted in this poll or there is an error with the transaction.")
+        }
 
         navigate("Results", { state: { data } });
 

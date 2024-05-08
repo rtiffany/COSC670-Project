@@ -8,7 +8,7 @@ export default function Index() {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <h1>Decentralized Voting</h1>
       <form method="post">
-        <ConnectWallet/>
+        {/* <ConnectWallet/> */}
       <Link to="configurePoll">
         <button type="submit">Configure Poll</button>
       </Link>
